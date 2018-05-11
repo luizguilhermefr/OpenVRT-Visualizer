@@ -8,6 +8,9 @@
 </template>
 
 <script>
+  const fs = require('fs')
+  const shp = require('shpjs')
+
   export default {
     name: 'landing-page',
     components: {},
@@ -19,8 +22,16 @@
             {name: 'Zip Files', extensions: ['zip']},
           ],
         }, (filePaths) => {
-          console.log(filePaths)
+          if (filePaths) {
+            fs.readFile(filePaths[0]).then(this.parseFile)
+          }
         })
+      },
+      parseFile (err, data) {
+        if (err) {
+          throw err
+        }
+        console.log(data)
       },
     },
   }
