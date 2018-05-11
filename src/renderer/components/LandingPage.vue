@@ -2,9 +2,10 @@
     <div class="md-layout md-alignment-center-center">
         <div>
             <md-empty-state md-label="Welcome to OpenVRT" md-description="Open a prescription map to begin.">
-            <span class="md-body-2 error">
-                {{ errorMessage }}
-            </span>
+                <span class="md-body-2 error">
+                    {{ errorMessage }}
+                </span>
+                <md-progress-spinner md-mode="indeterminate" :md-diameter="30" v-show="loading"></md-progress-spinner>
             </md-empty-state>
             <md-list class="md-triple-line" v-for="file in previousFiles" :key="file.id">
                 <md-list-item>
@@ -33,6 +34,7 @@
     data () {
       return {
         errorMessage: '',
+        loading: false,
       }
     },
     computed: {
@@ -55,6 +57,7 @@
         }
       },
       openPath (path) {
+        this.loading = true
         fs.readFile(path, this.parseFile)
         this.$store.commit('PUSH_PATH', path)
       },
@@ -73,11 +76,14 @@
         })
       },
       errorReadingFile (message) {
+        this.loading = false
         this.errorMessage = 'Error reading file: ' + message
       },
       publishGeoJson (geoJson) {
+        this.loading = false
         this.errorMessage = ''
         this.$store.commit('OPEN_GEO', geoJson)
+        this.$router.push('visualizer')
       },
       removePath (path) {
         this.$store.commit('REMOVE_PATH', path)
