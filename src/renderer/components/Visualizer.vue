@@ -13,17 +13,19 @@
 
 <script>
   import Map from 'ol/map'
-  import GeoJSON from 'ol/format/geojson'
   import View from 'ol/view'
+  import Control from 'ol/control'
+  import Proj from 'ol/proj'
+
+  import GeoJSON from 'ol/format/geojson'
 
   import Vector from 'ol/layer/vector'
   import Tile from 'ol/layer/tile'
 
-  import Proj from 'ol/proj'
-  import Control from 'ol/control'
-
   import OSM from 'ol/source/osm'
   import VectorSource from 'ol/source/vector'
+
+  import Geometry from 'ol/geom/geometry'
 
   import Styles from './styles/mapstyle'
 
@@ -37,10 +39,13 @@
     data () {
       return {
         map: null,
+        features: null
       }
     },
     mounted () {
+      this.generateFeatures()
       this.generateOpenLayersMap()
+      this.centralize()
     },
     methods: {
       generateOpenLayersMap () {
@@ -48,9 +53,14 @@
           target: 'map',
           layers: [
             new Tile({
-              source: new OSM()
+              source: new OSM(),
             }),
-            this.generateVectorLayer(),
+            new Vector({
+              source: new VectorSource({
+                features: this.features,
+              }),
+              style: this.style,
+            }),
           ],
           controls: Control.defaults({
             attributionOptions: {
@@ -58,27 +68,21 @@
             },
           }),
           view: new View({
-            center: Proj.fromLonLat([
-              121.767277, -3.963446,
-            ]),
+            center: [0, 0],
             zoom: 2,
           }),
         })
       },
+      centralize() {
+        const reference = this.features[0].getGeometry()
+        this.map.getView().fit(reference.getExtent(), this.map.getSize())
+      },
       style (feature) {
         return Styles[feature.getGeometry().getType()]
       },
-      generateVectorLayer () {
-        return new Vector({
-          source: this.generateVectorSource(),
-          style: this.style
-        })
-      },
-      generateVectorSource () {
-        return new VectorSource({
-          features: (new GeoJSON()).readFeatures(this.geoData),
-        })
-      },
+      generateFeatures() {
+        this.features = (new GeoJSON()).readFeatures(this.geoData, {featureProjection: 'EPSG:3857'})
+      }
     },
   }
 </script>
