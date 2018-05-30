@@ -3,7 +3,10 @@
 </template>
 
 <script>
-  import ol from 'ol'
+  import Map from 'ol/map'
+  import SourceVector from 'ol/source/vector'
+  import GeoJSON from 'ol/format/geojson'
+  import Vector from 'ol/layer/vector'
 
   export default {
     name: 'visualizer',
@@ -24,7 +27,7 @@
       generateOpenLayersMap () {
         const vectorSource = this.generateVectorSource()
         const vectorLayer = this.generateVectorLayer(vectorSource)
-        this.map = new ol.Map({
+        this.map = new Map({
           target: 'map',
           layers: [
             vectorLayer
@@ -32,12 +35,12 @@
         })
       },
       generateVectorSource () {
-        return new ol.source.Vector({
-          features: (new ol.format.GeoJSON()).readFeatures(this.geoData())
+        return new SourceVector({
+          features: (new GeoJSON()).readFeatures(this.geoData)
         })
       },
       generateVectorLayer(vectorSource) {
-        return new ol.layer.Vector({
+        return new Vector({
           source: vectorSource
         })
       }

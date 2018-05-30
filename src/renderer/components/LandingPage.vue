@@ -1,7 +1,7 @@
 <template>
     <div class="md-layout md-alignment-center-center">
         <div>
-            <md-empty-state md-label="Welcome to OpenVRT" md-description="Open a prescription map to begin.">
+            <md-empty-state md-label="Welcome to OpenVRT" md-description="Open a prescription map to begin">
                 <span class="md-body-2 error">
                     {{ errorMessage }}
                 </span>
