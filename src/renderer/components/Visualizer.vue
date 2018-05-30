@@ -4,9 +4,10 @@
 
 <script>
   import Map from 'ol/map'
-  import SourceVector from 'ol/source/vector'
+  import VectorSource from 'ol/source/vector'
   import GeoJSON from 'ol/format/geojson'
   import Vector from 'ol/layer/vector'
+  import View from 'ol/view'
 
   export default {
     name: 'visualizer',
@@ -25,25 +26,29 @@
     },
     methods: {
       generateOpenLayersMap () {
-        const vectorSource = this.generateVectorSource()
-        const vectorLayer = this.generateVectorLayer(vectorSource)
         this.map = new Map({
           target: 'map',
           layers: [
-            vectorLayer
+            this.generateVectorLayer(),
           ],
+          view: new View({
+            center: [
+              -8.810269960287718,
+              115.23514275881486,
+            ],
+          }),
+        })
+      },
+      generateVectorLayer () {
+        return new Vector({
+          source: this.generateVectorSource(),
         })
       },
       generateVectorSource () {
-        return new SourceVector({
-          features: (new GeoJSON()).readFeatures(this.geoData)
+        return new VectorSource({
+          features: (new GeoJSON()).readFeatures(this.geoData),
         })
       },
-      generateVectorLayer(vectorSource) {
-        return new Vector({
-          source: vectorSource
-        })
-      }
     },
   }
 </script>
