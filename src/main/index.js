@@ -44,6 +44,7 @@ function createMenu () {
     submenu: [
       new MenuItem({
         label: 'Open...',
+        click: openFile
       }),
       new MenuItem({
         label: 'Exit',
@@ -82,6 +83,10 @@ function createAboutWindow () {
   aboutWindow.on('closed', () => {
     aboutWindow = null
   })
+}
+
+function openFile () {
+  mainWindow.webContents.send('openFile')
 }
 
 app.on('ready', createWindow)

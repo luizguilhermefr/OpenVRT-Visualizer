@@ -25,8 +25,9 @@
 </template>
 
 <script>
-  const fs = require('fs')
-  const shp = require('shpjs')
+  import fs from 'fs'
+  import shp from 'shpjs'
+  import { ipcRenderer } from 'electron'
 
   export default {
     name: 'landing-page',
@@ -36,6 +37,9 @@
         errorMessage: '',
         loading: false,
       }
+    },
+    mounted () {
+      ipcRenderer.on('openFile', this.openFilePicker)
     },
     computed: {
       previousFiles () {
