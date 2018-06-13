@@ -15,7 +15,6 @@
   import Map from 'ol/map'
   import View from 'ol/view'
   import Control from 'ol/control'
-  import Proj from 'ol/proj'
 
   import GeoJSON from 'ol/format/geojson'
 
@@ -24,8 +23,6 @@
 
   import OSM from 'ol/source/osm'
   import VectorSource from 'ol/source/vector'
-
-  import Geometry from 'ol/geom/geometry'
 
   import Styles from './styles/mapstyle'
 

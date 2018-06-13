@@ -3,10 +3,10 @@ const state = {
 }
 
 const mutations = {
-  REMOVE_PATH (state, path) {
+  GEO_REMOVE_PATH (state, path) {
     state.previousFiles = state.previousFiles.filter((el) => el !== path)
   },
-  PUSH_PATH (state, path) {
+  GEO_PUSH_PATH (state, path) {
     state.previousFiles = state.previousFiles.filter((el) => el !== path)
     state.previousFiles.push(path)
   },

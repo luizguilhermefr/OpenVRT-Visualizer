@@ -25,8 +25,6 @@
 </template>
 
 <script>
-  import fs from 'fs'
-  import shp from 'shpjs'
   import { ipcRenderer } from 'electron'
 
   export default {
@@ -34,7 +32,6 @@
     components: {},
     data () {
       return {
-        errorMessage: '',
         loading: false,
       }
     },
@@ -44,6 +41,12 @@
     computed: {
       previousFiles () {
         return this.$store.state.PreviousFiles.previousFiles
+      },
+      errorMessage () {
+        return this.$store.state.OpenedGeoJson.errorMsg
+      },
+      errorReadingFile () {
+        return this.$store.state.OpenedGeoJson.error
       },
     },
     methods: {
@@ -62,35 +65,15 @@
       },
       openPath (path) {
         this.loading = true
-        fs.readFile(path, this.parseFile)
-        this.$store.commit('PUSH_PATH', path)
-      },
-      parseFile (err, data) {
-        if (err) {
-          this.errorReadingFile(err.message)
-        } else {
-          this.convertToGeoJson(data)
-        }
-      },
-      convertToGeoJson (data) {
-        shp(data).then((geojson) => {
-          this.publishGeoJson(geojson)
-        }, (err) => {
-          this.errorReadingFile(err.message)
+        this.$store.dispatch('readFileContents', path).then(() => {
+          this.loading = false
+          if (!this.errorReadingFile) {
+            this.$router.replace('visualizer')
+          }
         })
       },
-      errorReadingFile (message) {
-        this.loading = false
-        this.errorMessage = 'Error reading file: ' + message
-      },
-      publishGeoJson (geoJson) {
-        this.loading = false
-        this.errorMessage = ''
-        this.$store.commit('OPEN_GEO', geoJson)
-        this.$router.push('visualizer')
-      },
       removePath (path) {
-        this.$store.commit('REMOVE_PATH', path)
+        this.$store.commit('GEO_REMOVE_PATH', path)
       },
     },
   }
