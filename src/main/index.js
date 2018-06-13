@@ -47,6 +47,7 @@ function createMenu () {
       }),
       new MenuItem({
         label: 'Exit',
+        role: 'quit'
       }),
     ],
   })
