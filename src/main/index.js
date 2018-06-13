@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, Menu, MenuItem } from 'electron'
 
 /**
  * Set `__static` path to static files in production
@@ -13,19 +13,23 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
 let mainWindow
-const winURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080`
-  : `file://${__dirname}/index.html`
+
+let aboutWindow
+
+const isDEV = process.env.NODE_ENV === 'development'
+
+const winURL = isDEV ? `http://localhost:9080` : `file://${__dirname}/index.html`
+
+const aboutURL = isDEV ? `http://localhost:9080/#/about` : `file://${__dirname}/index.html#about`
 
 function createWindow () {
-  /**
-   * Initial window options
-   */
   mainWindow = new BrowserWindow({
-    height: 563,
     useContentSize: true,
-    width: 1000,
+    width: 800,
+    height: 600,
   })
+
+  createMenu()
 
   mainWindow.loadURL(winURL)
 
@@ -34,12 +38,62 @@ function createWindow () {
   })
 }
 
+function createMenu () {
+  const menu = new Menu()
+  const fileMenu = new MenuItem({
+    label: 'File',
+    submenu: [
+      new MenuItem({
+        label: 'Open...',
+      }),
+      new MenuItem({
+        label: 'Exit',
+      }),
+    ],
+  })
+  const viewMenu = new MenuItem({
+    label: 'View',
+    submenu: [
+      new MenuItem({
+        label: 'Fullscreen',
+        role: 'toggleFullScreen',
+      }),
+    ],
+  })
+  const helpMenu = new MenuItem({
+    label: 'Help',
+    submenu: [
+      new MenuItem({
+        label: 'About...',
+        click: createAboutWindow,
+      }),
+    ],
+  })
+  menu.append(fileMenu)
+  menu.append(viewMenu)
+  menu.append(helpMenu)
+  Menu.setApplicationMenu(menu)
+}
+
+function createAboutWindow () {
+  aboutWindow = new BrowserWindow({
+    parent: mainWindow,
+    useContentSize: true,
+    width: 400,
+    height: 400,
+  })
+
+  aboutWindow.loadURL(aboutURL)
+
+  aboutWindow.on('closed', () => {
+    aboutWindow = null
+  })
+}
+
 app.on('ready', createWindow)
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+  app.quit()
 })
 
 app.on('activate', () => {
