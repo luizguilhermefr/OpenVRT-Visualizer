@@ -51,15 +51,6 @@ function createMenu () {
       }),
     ],
   })
-  const viewMenu = new MenuItem({
-    label: 'View',
-    submenu: [
-      new MenuItem({
-        label: 'Fullscreen',
-        role: 'toggleFullScreen',
-      }),
-    ],
-  })
   const helpMenu = new MenuItem({
     label: 'Help',
     submenu: [
@@ -70,7 +61,6 @@ function createMenu () {
     ],
   })
   menu.append(fileMenu)
-  menu.append(viewMenu)
   menu.append(helpMenu)
   Menu.setApplicationMenu(menu)
 }
