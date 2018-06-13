@@ -37,6 +37,17 @@
     },
     mounted () {
       ipcRenderer.on('openFile', this.openFilePicker)
+      this.$store.subscribe((mutation) => {
+        const {type} = mutation
+        switch (type) {
+          case 'GEO_SUCCESS_FILE':
+            this.onFileOpened()
+            break
+          case 'GEO_INVALID_FILE':
+            this.onErrorOpeningFile()
+            break
+        }
+      })
     },
     computed: {
       previousFiles () {
@@ -65,15 +76,17 @@
       },
       openPath (path) {
         this.loading = true
-        this.$store.dispatch('readFileContents', path).then(() => {
-          this.loading = false
-          if (!this.errorReadingFile) {
-            this.$router.replace('visualizer')
-          }
-        })
+        this.$store.dispatch('readFileContents', path)
       },
       removePath (path) {
         this.$store.commit('GEO_REMOVE_PATH', path)
+      },
+      onFileOpened () {
+        this.loading = false
+        this.$router.push('visualizer')
+      },
+      onErrorOpeningFile () {
+        this.loading = false
       },
     },
   }
