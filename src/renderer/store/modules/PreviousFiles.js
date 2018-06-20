@@ -8,7 +8,7 @@ const mutations = {
   },
   GEO_PUSH_PATH (state, path) {
     state.previousFiles = state.previousFiles.filter((el) => el !== path)
-    state.previousFiles.push(path)
+    state.previousFiles.unshift(path)
   },
 }
 
