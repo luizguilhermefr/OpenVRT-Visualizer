@@ -5,7 +5,7 @@ import Fill from 'ol/style/fill'
 export default {
   Polygon: new Style({
     stroke: new Stroke({
-      color: 'black',
+      color: 'blue',
       width: 1,
     }),
     fill: new Fill({
