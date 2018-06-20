@@ -1,5 +1,5 @@
 <template>
-    <div id="map" class="md-elevation-2"></div>
+    <div id="map" class="md-elevation-2" v-bind:class="{hover: hover}"></div>
 </template>
 
 <style scoped>
@@ -7,6 +7,10 @@
         width: 95%;
         height: 900px;
         margin: 2%;
+    }
+
+    .hover {
+        cursor: pointer;
     }
 </style>
 <script>
@@ -51,6 +55,7 @@
         map: null,
         vectorLayer: null,
         features: null,
+        hover: false,
       }
     },
     methods: {
@@ -64,6 +69,22 @@
             zoom: 2,
           }),
         })
+        this.map.on('click', this.onClickMap)
+        this.map.on('pointermove', this.onMouseMove)
+      },
+      onClickMap (e) {
+        this.map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
+          console.log({
+            feature,
+            layer,
+          })
+        })
+      },
+      onMouseMove (e) {
+        if (!e.dragging) {
+          const pixel = this.map.getEventPixel(e.originalEvent)
+          this.hover = this.map.hasFeatureAtPixel(pixel)
+        }
       },
       centralize () {
         const reference = this.features[0].getGeometry()
