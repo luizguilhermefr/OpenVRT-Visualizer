@@ -2,7 +2,7 @@
     <div class="md-layout md-alignment-center-center">
         <div>
             <md-empty-state md-label="Welcome to OpenVRT" md-description="Open a prescription map to begin">
-                <span class="md-body-2 error">
+                <span class="md-body-2 error" v-show="errorReadingFile">
                     {{ errorMessage }}
                 </span>
                 <md-progress-spinner md-mode="indeterminate" :md-diameter="30" v-show="loading"></md-progress-spinner>
@@ -83,7 +83,7 @@
       },
       onFileOpened () {
         this.loading = false
-        this.$router.push('visualizer')
+        this.$router.replace('visualizer')
       },
       onErrorOpeningFile () {
         this.loading = false
