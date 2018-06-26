@@ -30,7 +30,10 @@
   import OSM from 'ol/source/osm'
   import VectorSource from 'ol/source/vector'
 
-  import Styles from './styles/mapstyle'
+  import Style from 'ol/style/style'
+  import Stroke from 'ol/style/stroke'
+  import Fill from 'ol/style/fill'
+
   import AttributePopover from './AttributePopover'
 
   export default {
@@ -49,10 +52,11 @@
         vectorLayer: null,
         features: null,
         hover: false,
+        minRate: 0,
+        maxRate: 0,
         popover: {
           attributes: {
             name: '',
-            hectares: '',
             rate: '',
           },
           visible: false,
@@ -94,8 +98,7 @@
         const featureFound = this.map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
           const properties = feature.getProperties()
           this.popover.attributes.name = properties.NAME ? properties.NAME : ''
-          this.popover.attributes.rate = properties.RATE ? properties.RATE : ''
-          this.popover.attributes.hectares = properties.HECTARES ? properties.HECTARES : ''
+          this.popover.attributes.rate = properties.RATE
           return true
         })
         featureFound ? this.openPopover(e.pixel[0], e.pixel[1]) : this.closePopover()
@@ -121,7 +124,25 @@
         this.map.getView().fit(reference.getExtent(), this.map.getSize())
       },
       style (feature) {
-        return Styles[feature.getGeometry().getType()]
+        const properties = feature.getProperties()
+        const color = this.getColorForRate(properties.RATE)
+        return new Style({
+          stroke: new Stroke({
+            color: `hsla(${color[0]}, ${color[1]}, ${color[2]}, 1.0)`,
+            width: 1,
+          }),
+          fill: new Fill({
+            color: `hsla(${color[0]}, ${color[1]}, ${color[2]}, 0.1)`,
+          }),
+        })
+      },
+      getColorForRate (rate) {
+        const percentage = this.rateToPercentage(rate)
+        const hue = ((1 - percentage) * 120).toString(10)
+        return [hue, '100%', '50%']
+      },
+      rateToPercentage (rate) {
+        return (rate - this.minRate) / (this.maxRate + this.minRate)
       },
       generateFeatures () {
         this.features = (new GeoJSON()).readFeatures(this.geoData, {featureProjection: 'EPSG:3857'})
@@ -145,8 +166,25 @@
             ],
           }))
       },
+      calculateRateRange () {
+        let max = Number.NEGATIVE_INFINITY
+        let min = Number.POSITIVE_INFINITY
+        this.features.forEach((feature) => {
+          const properties = feature.getProperties()
+          const rate = properties.RATE
+          if (rate > max) {
+            max = rate
+          }
+          if (rate < min) {
+            min = rate
+          }
+        })
+        this.minRate = min
+        this.maxRate = max
+      },
       onFileOpened () {
         this.generateFeatures()
+        this.calculateRateRange()
         this.generateVectorLayer()
         this.updateLayers()
         this.centralize()
