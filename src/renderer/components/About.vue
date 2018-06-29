@@ -13,6 +13,8 @@
 
             <p>Special thanks to Rogerio Schneider from Agromatic Automação e Controle.</p>
 
+            <p>Icon by <a v-on:click="openIcons8">icons8</a></p>
+
             <p>Cascavel, Paraná, Brazil, 2018</p>
         </md-card-content>
 
@@ -33,11 +35,15 @@
       return {
         version: '0.1.0',
         githubURL: 'https://github.com/luizguilhermefr/OpenVRT-Visualizer',
+        icons8URL: 'https://icons8.com/',
       }
     },
     methods: {
       openGithub () {
         shell.openExternal(this.githubURL)
+      },
+      openIcons8 () {
+        shell.openExternal(this.icons8URL)
       },
     },
   }

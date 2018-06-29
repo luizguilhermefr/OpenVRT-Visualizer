@@ -25,7 +25,7 @@ const aboutURL = isDEV ? `http://localhost:9080/#/about` : `file://${__dirname}/
 function createWindow () {
   mainWindow = new BrowserWindow({
     width: 800,
-    height: 600,
+    height: 600
   })
 
   createMenu()

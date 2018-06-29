@@ -28,3 +28,7 @@ yarn run lint
 | :-------------: |:-------------:|
 | Fertilizer | kg per hectare |
 | Herbicide | liters per hectare |
+
+## Credits
+
+Icon by [icons8](https://icons8.com/).
