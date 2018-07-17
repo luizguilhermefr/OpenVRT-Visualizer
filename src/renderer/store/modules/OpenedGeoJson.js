@@ -23,6 +23,12 @@ const mutations = {
     state.error = true
     state.errorMsg = errorMsg
   },
+  GEO_EXPORT_ERROR (state, errorMsg = '') {
+    //
+  },
+  GEO_EXPORT_SUCCESS (state) {
+    //
+  },
 }
 
 const actions = {
@@ -58,6 +64,16 @@ const actions = {
         const {message} = err
         context.commit('GEO_INVALID_FILE', message)
       })
+    })
+  },
+  exportContents (context, path) {
+    fs.writeFile(path, JSON.stringify(context.state.data), (err) => {
+      if (err) {
+        context.commit('GEO_EXPORT_ERROR')
+        return
+      }
+
+      context.commit('GEO_EXPORT_SUCCESS')
     })
   },
 }

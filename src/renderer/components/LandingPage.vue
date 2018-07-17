@@ -37,6 +37,7 @@
     },
     mounted () {
       ipcRenderer.on('openFile', this.openFilePicker)
+      ipcRenderer.on('exportToJson', this.openExporter)
       this.$store.subscribe((mutation) => {
         const {type} = mutation
         switch (type) {
@@ -63,17 +64,28 @@
     methods: {
       openFilePicker () {
         this.$electron.remote.dialog.showOpenDialog({
+          title: 'Open file...',
           properties: ['openFile'],
           filters: [
             {name: 'Zip Files', extensions: ['zip']},
             {name: 'GeoJSON Files', extensions: ['json', 'geojson']},
           ],
-        }, this.processFilePaths)
+        }, (paths) => {
+          if (paths) {
+            this.openPath(paths[0])
+          }
+        })
       },
-      processFilePaths (paths) {
-        if (paths) {
-          this.openPath(paths[0])
-        }
+      openExporter () {
+        this.$electron.remote.dialog.showSaveDialog({
+          title: 'Export...',
+          defaultPath: 'OpenVRT-Map.geojson',
+          filters: [
+            {name: 'GeoJSON', extensions: ['geojson', 'json']},
+          ],
+        }, (target) => {
+          this.$store.dispatch('exportContents', target)
+        })
       },
       openPath (path) {
         this.loading = true
