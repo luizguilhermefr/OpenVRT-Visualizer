@@ -1,20 +1,25 @@
 'use strict'
 
-import { app, BrowserWindow, Menu, MenuItem } from 'electron'
+import { app, BrowserWindow, Menu, ipcMain } from 'electron'
+import AppMenu from './AppMenu'
 
-/**
- * Set `__static` path to static files in production
- * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
- */
 if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path')
     .join(__dirname, '/static')
     .replace(/\\/g, '\\\\')
 }
 
+// Windows
+
 let mainWindow
 
 let aboutWindow
+
+// Menu
+
+let menu
+
+// Runtime variables
 
 const isDEV = process.env.NODE_ENV === 'development'
 
@@ -22,10 +27,12 @@ const winURL = isDEV ? `http://localhost:9080` : `file://${__dirname}/index.html
 
 const aboutURL = isDEV ? `http://localhost:9080/#/about` : `file://${__dirname}/index.html#about`
 
+// Functions
+
 function createWindow () {
   mainWindow = new BrowserWindow({
     width: 800,
-    height: 600
+    height: 600,
   })
 
   createMenu()
@@ -38,32 +45,16 @@ function createWindow () {
 }
 
 function createMenu () {
-  const menu = new Menu()
-  const fileMenu = new MenuItem({
-    label: 'File',
-    submenu: [
-      new MenuItem({
-        label: 'Open...',
-        click: openFile
-      }),
-      new MenuItem({
-        label: 'Exit',
-        role: 'quit'
-      }),
-    ],
+  menu = new AppMenu({
+    onPressOpenFile: () => {
+      mainWindow.webContents.send('openFile')
+    },
+    onPressExport: () => {
+      mainWindow.webContents.send('exportToJson')
+    },
+    onPressAbout: createAboutWindow,
   })
-  const helpMenu = new MenuItem({
-    label: 'Help',
-    submenu: [
-      new MenuItem({
-        label: 'About...',
-        click: createAboutWindow,
-      }),
-    ],
-  })
-  menu.append(fileMenu)
-  menu.append(helpMenu)
-  Menu.setApplicationMenu(menu)
+  Menu.setApplicationMenu(menu.getMenu())
 }
 
 function createAboutWindow () {
@@ -85,10 +76,6 @@ function createAboutWindow () {
   })
 }
 
-function openFile () {
-  mainWindow.webContents.send('openFile')
-}
-
 app.on('ready', createWindow)
 
 app.on('window-all-closed', () => {
@@ -99,4 +86,8 @@ app.on('activate', () => {
   if (mainWindow === null) {
     createWindow()
   }
+})
+
+ipcMain.on('fileOpened', () => {
+  menu.enableExport()
 })

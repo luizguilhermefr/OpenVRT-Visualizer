@@ -4,7 +4,7 @@ import shp from 'shpjs'
 const state = {
   data: null,
   error: false,
-  errorMsg: ''
+  errorMsg: '',
 }
 
 const mutations = {
@@ -32,17 +32,32 @@ const actions = {
         // Errors like permissions or file not found
         const {message} = err
         context.commit('GEO_INVALID_FILE', message)
-      } else {
-        shp(data).then((geoObject) => {
-          // GeoJSON valid and ready-to-go
+
+        return
+      }
+
+      if (path.endsWith('.json') || path.endsWith('.geojson')) {
+        try {
+          const geoObject = JSON.parse(data.toString())
           context.commit('GEO_SUCCESS_FILE', geoObject)
           context.commit('GEO_PUSH_PATH', path)
-        }, function (err) {
-          // GeoJSON is invalid
-          const {message} = err
+        } catch (err2) {
+          // Invalid JSON file
+          const {message} = err2
           context.commit('GEO_INVALID_FILE', message)
-        })
+        }
+
+        return
       }
+
+      shp(data).then((geoObject) => {
+        context.commit('GEO_SUCCESS_FILE', geoObject)
+        context.commit('GEO_PUSH_PATH', path)
+      }, function (err) {
+        // Invalid shapefile
+        const {message} = err
+        context.commit('GEO_INVALID_FILE', message)
+      })
     })
   },
 }

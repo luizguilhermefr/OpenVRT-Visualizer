@@ -66,6 +66,7 @@
           properties: ['openFile'],
           filters: [
             {name: 'Zip Files', extensions: ['zip']},
+            {name: 'GeoJSON Files', extensions: ['json', 'geojson']},
           ],
         }, this.processFilePaths)
       },
@@ -83,6 +84,7 @@
       },
       onFileOpened () {
         this.loading = false
+        ipcRenderer.send('fileOpened')
         this.$router.replace('visualizer')
       },
       onErrorOpeningFile () {
