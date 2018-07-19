@@ -1,7 +1,13 @@
 <template>
-    <div id="map" class="md-elevation-2" v-bind:class="{hover: hover}">
-        <attr-popover :visible="popover.visible" :x="popover.x" :y="popover.y"
-                      :attributes="popover.attributes"></attr-popover>
+    <div>
+        <div id="map" class="md-elevation-2" v-bind:class="{hover: hover}">
+            <attr-popover :visible="popover.visible" :x="popover.x" :y="popover.y"
+                          :attributes="popover.attributes"></attr-popover>
+        </div>
+        <md-snackbar md-position="center" :md-duration="10000" :md-active.sync="showSnackbar" md-persistent>
+            <span>{{ snackbarMsg }}</span>
+            <md-button class="md-primary" @click="showSnackbar = false">OK</md-button>
+        </md-snackbar>
     </div>
 </template>
 
@@ -18,6 +24,8 @@
     }
 </style>
 <script>
+  import { ipcRenderer } from 'electron'
+
   import Map from 'ol/map'
   import View from 'ol/view'
 
@@ -42,6 +50,12 @@
       geoData () {
         return this.$store.state.OpenedGeoJson.data
       },
+      exportErrorMsg () {
+        return this.$store.state.OpenedGeoJson.exportErrorMsg
+      },
+      openErrorMsg () {
+        return this.$store.state.OpenedGeoJson.shapeErrorMsg
+      },
     },
     components: {
       'attr-popover': AttributePopover,
@@ -54,6 +68,8 @@
         hover: false,
         minRate: 0,
         maxRate: 0,
+        showSnackbar: false,
+        snackbarMsg: '',
         popover: {
           attributes: {
             name: '',
@@ -66,6 +82,7 @@
       }
     },
     mounted () {
+      ipcRenderer.on('exportToJson', this.openExporter)
       this.generateOpenLayersMap()
       this.onFileOpened()
       this.$store.subscribe((mutation) => {
@@ -77,10 +94,27 @@
           case 'GEO_INVALID_FILE':
             this.onErrorOpeningFile()
             break
+          case 'GEO_EXPORT_ERROR':
+            this.onErrorExportingFile()
+            break
+          case 'GEO_EXPORT_SUCCESS':
+            this.onExportSuccessfully()
+            break
         }
       })
     },
     methods: {
+      openExporter () {
+        this.$electron.remote.dialog.showSaveDialog({
+          title: 'Export...',
+          defaultPath: 'OpenVRT-Map.geojson',
+          filters: [
+            {name: 'GeoJSON', extensions: ['geojson', 'json']},
+          ],
+        }, (target) => {
+          this.$store.dispatch('exportContents', target)
+        })
+      },
       generateOpenLayersMap () {
         this.map = new Map({
           target: 'map',
@@ -190,6 +224,16 @@
         this.centralize()
       },
       onErrorOpeningFile () {
+        this.snackbarMsg = this.openErrorMsg
+        this.showSnackbar = true
+      },
+      onErrorExportingFile () {
+        this.snackbarMsg = this.exportErrorMsg
+        this.showSnackbar = true
+      },
+      onExportSuccessfully () {
+        this.snackbarMsg = 'File exported successfully'
+        this.showSnackbar = true
       },
     },
   }

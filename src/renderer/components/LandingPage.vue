@@ -37,7 +37,6 @@
     },
     mounted () {
       ipcRenderer.on('openFile', this.openFilePicker)
-      ipcRenderer.on('exportToJson', this.openExporter)
       this.$store.subscribe((mutation) => {
         const {type} = mutation
         switch (type) {
@@ -55,10 +54,10 @@
         return this.$store.state.PreviousFiles.previousFiles
       },
       errorMessage () {
-        return this.$store.state.OpenedGeoJson.errorMsg
+        return this.$store.state.OpenedGeoJson.shapeErrorMsg
       },
       errorReadingFile () {
-        return this.$store.state.OpenedGeoJson.error
+        return this.$store.state.OpenedGeoJson.shapeError
       },
     },
     methods: {
@@ -74,17 +73,6 @@
           if (paths) {
             this.openPath(paths[0])
           }
-        })
-      },
-      openExporter () {
-        this.$electron.remote.dialog.showSaveDialog({
-          title: 'Export...',
-          defaultPath: 'OpenVRT-Map.geojson',
-          filters: [
-            {name: 'GeoJSON', extensions: ['geojson', 'json']},
-          ],
-        }, (target) => {
-          this.$store.dispatch('exportContents', target)
         })
       },
       openPath (path) {

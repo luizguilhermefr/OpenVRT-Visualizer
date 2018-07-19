@@ -3,31 +3,30 @@ import shp from 'shpjs'
 
 const state = {
   data: null,
-  error: false,
-  errorMsg: '',
+  shapeError: false,
+  shapeErrorMsg: '',
+  exportError: false,
+  exportErrorMsg: '',
 }
 
 const mutations = {
   GEO_SUCCESS_FILE (state, data) {
     state.data = data
-    state.error = false
-    state.errorMsg = ''
-  },
-  CLOSE_GEO (state) {
-    state.data = null
-    state.error = false
-    state.errorMsg = ''
+    state.shapeError = false
+    state.shapeErrorMsg = ''
   },
   GEO_INVALID_FILE (state, errorMsg = '') {
     state.data = null
-    state.error = true
-    state.errorMsg = errorMsg
-  },
-  GEO_EXPORT_ERROR (state, errorMsg = '') {
-    //
+    state.shapeError = true
+    state.shapeErrorMsg = errorMsg
   },
   GEO_EXPORT_SUCCESS (state) {
-    //
+    state.exportError = false
+    state.exportErrorMsg = ''
+  },
+  GEO_EXPORT_ERROR (state, errorMsg = '') {
+    state.exportError = true
+    state.exportErrorMsg = errorMsg
   },
 }
 
@@ -59,17 +58,18 @@ const actions = {
       shp(data).then((geoObject) => {
         context.commit('GEO_SUCCESS_FILE', geoObject)
         context.commit('GEO_PUSH_PATH', path)
-      }, function (err) {
+      }, function () {
         // Invalid shapefile
-        const {message} = err
-        context.commit('GEO_INVALID_FILE', message)
+        context.commit('GEO_INVALID_FILE',
+          'Invalid prescription map. If you are trying to open an ESRI Shapefile, make sure the .shp, .shx and .dbf files are compressed within a zip file.')
       })
     })
   },
   exportContents (context, path) {
     fs.writeFile(path, JSON.stringify(context.state.data), (err) => {
       if (err) {
-        context.commit('GEO_EXPORT_ERROR')
+        const {message} = err
+        context.commit('GEO_EXPORT_ERROR', message)
         return
       }
 
