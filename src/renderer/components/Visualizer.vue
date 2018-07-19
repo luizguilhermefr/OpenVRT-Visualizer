@@ -4,9 +4,9 @@
             <attr-popover :visible="popover.visible" :x="popover.x" :y="popover.y"
                           :attributes="popover.attributes"></attr-popover>
         </div>
-        <md-snackbar md-position="center" :md-duration="10000" :md-active.sync="showSnackbar" md-persistent>
-            <span>{{ snackbarMsg }}</span>
-            <md-button class="md-primary" @click="showSnackbar = false">OK</md-button>
+        <md-snackbar md-position="center" :md-duration="10000" :md-active.sync="snackbar.show" md-persistent>
+            <span>{{ snackbar.msg }}</span>
+            <md-button class="md-primary" @click="snackbar.show = false">OK</md-button>
         </md-snackbar>
     </div>
 </template>
@@ -68,8 +68,10 @@
         hover: false,
         minRate: 0,
         maxRate: 0,
-        showSnackbar: false,
-        snackbarMsg: '',
+        snackbar: {
+          show: false,
+          msg: '',
+        },
         popover: {
           attributes: {
             name: '',
@@ -112,7 +114,9 @@
             {name: 'GeoJSON', extensions: ['geojson', 'json']},
           ],
         }, (target) => {
-          this.$store.dispatch('exportContents', target)
+          if (target) {
+            this.$store.dispatch('exportContents', target)
+          }
         })
       },
       generateOpenLayersMap () {
@@ -224,16 +228,16 @@
         this.centralize()
       },
       onErrorOpeningFile () {
-        this.snackbarMsg = this.openErrorMsg
-        this.showSnackbar = true
+        this.snackbar.msg = this.openErrorMsg
+        this.snackbar.show = true
       },
       onErrorExportingFile () {
-        this.snackbarMsg = this.exportErrorMsg
-        this.showSnackbar = true
+        this.snackbar.msg = this.exportErrorMsg
+        this.snackbar.show = true
       },
       onExportSuccessfully () {
-        this.snackbarMsg = 'File exported successfully'
-        this.showSnackbar = true
+        this.snackbar.msg = 'File exported successfully'
+        this.snackbar.show = true
       },
     },
   }
