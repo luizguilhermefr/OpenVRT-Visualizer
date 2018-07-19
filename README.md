@@ -1,6 +1,6 @@
 # OpenVRT Visualizer
 
-The OpenVRT Project desktop visualizer. Use it to review your prescription maps.
+The OpenVRT Project desktop visualizer. Use it to review your prescription maps and/or convert them to GeoJSON.
 
 ## Build Setup
 
@@ -19,15 +19,6 @@ yarn run build
 yarn run lint
 
 ```
-
-## File Format
-
-### Attributes
-
-| Input | Rate measure |
-| :-------------: |:-------------:|
-| Fertilizer | kg per hectare |
-| Herbicide | liters per hectare |
 
 ## Credits
 
