@@ -2,6 +2,9 @@
 
 The OpenVRT Project desktop visualizer. Use it to review your prescription maps and/or convert them to GeoJSON.
 
+- [Go to site](https://luizguilhermefr.github.io/OpenVRT)
+- [Watch the video](https://www.youtube.com/watch?v=W3I2XYizy-U)
+
 ## Build Setup
 
 ``` bash
