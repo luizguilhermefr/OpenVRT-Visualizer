@@ -23,11 +23,15 @@
         cursor: pointer;
     }
 </style>
+
 <script>
   import { ipcRenderer } from 'electron'
 
   import Map from 'ol/map'
   import View from 'ol/view'
+
+  import ScaleLine from 'ol/control/scaleline'
+  import Control from 'ol/control'
 
   import GeoJSON from 'ol/format/geojson'
 
@@ -122,8 +126,10 @@
       generateOpenLayersMap () {
         this.map = new Map({
           target: 'map',
-          controls: [],
           layers: [],
+          controls: Control.defaults().extend([
+            new ScaleLine()
+          ]),
           view: new View({
             center: [0, 0],
             zoom: 2,
