@@ -1,6 +1,7 @@
 <template>
     <div>
         <div id="map" class="md-elevation-2" v-bind:class="{hover: hover}">
+            <div id="scale-line" class="scale-line"></div>
             <attr-popover :visible="popover.visible" :x="popover.x" :y="popover.y"
                           :attributes="popover.attributes"></attr-popover>
         </div>
@@ -11,7 +12,7 @@
     </div>
 </template>
 
-<style scoped>
+<style>
     #map {
         width: 95%;
         height: 900px;
@@ -22,6 +23,20 @@
     .hover {
         cursor: pointer;
     }
+
+    .scale-line {
+        position: absolute;
+        top: 2%;
+        left: 4%;
+        z-index: 1;
+        font-weight: bold;
+        font-size: 16px;
+        text-align: center;
+        border-bottom: 1px solid black;
+        border-left: 1px solid black;
+        border-right: 1px solid black;
+        background-color: rgba(255, 255, 255, 0.7)
+    }
 </style>
 
 <script>
@@ -31,7 +46,6 @@
   import View from 'ol/view'
 
   import ScaleLine from 'ol/control/scaleline'
-  import Control from 'ol/control'
 
   import GeoJSON from 'ol/format/geojson'
 
@@ -92,7 +106,7 @@
       this.generateOpenLayersMap()
       this.onFileOpened()
       this.$store.subscribe((mutation) => {
-        const {type} = mutation
+        const { type } = mutation
         switch (type) {
           case 'GEO_SUCCESS_FILE':
             this.onFileOpened()
@@ -115,7 +129,7 @@
           title: 'Export...',
           defaultPath: 'OpenVRT-Map.geojson',
           filters: [
-            {name: 'GeoJSON', extensions: ['geojson', 'json']},
+            { name: 'GeoJSON', extensions: [ 'geojson', 'json' ] },
           ],
         }, (target) => {
           if (target) {
@@ -127,11 +141,13 @@
         this.map = new Map({
           target: 'map',
           layers: [],
-          controls: Control.defaults().extend([
-            new ScaleLine()
-          ]),
+          controls: [
+            new ScaleLine({
+              target: 'scale-line',
+            }),
+          ],
           view: new View({
-            center: [0, 0],
+            center: [ 0, 0 ],
             zoom: 2,
           }),
         })
@@ -145,7 +161,7 @@
           this.popover.attributes.rate = properties.RATE
           return true
         })
-        featureFound ? this.openPopover(e.pixel[0], e.pixel[1]) : this.closePopover()
+        featureFound ? this.openPopover(e.pixel[ 0 ], e.pixel[ 1 ]) : this.closePopover()
       },
       onMouseMove (e) {
         if (e.dragging) {
@@ -164,7 +180,7 @@
         this.popover.visible = false
       },
       centralize () {
-        const reference = this.features[0].getGeometry()
+        const reference = this.features[ 0 ].getGeometry()
         this.map.getView().fit(reference.getExtent(), this.map.getSize())
       },
       style (feature) {
@@ -172,24 +188,24 @@
         const color = this.getColorForRate(properties.RATE)
         return new Style({
           stroke: new Stroke({
-            color: `hsla(${color[0]}, ${color[1]}, ${color[2]}, 1.0)`,
+            color: `hsla(${color[ 0 ]}, ${color[ 1 ]}, ${color[ 2 ]}, 1.0)`,
             width: 1,
           }),
           fill: new Fill({
-            color: `hsla(${color[0]}, ${color[1]}, ${color[2]}, 0.1)`,
+            color: `hsla(${color[ 0 ]}, ${color[ 1 ]}, ${color[ 2 ]}, 0.1)`,
           }),
         })
       },
       getColorForRate (rate) {
         const percentage = this.rateToPercentage(rate)
         const hue = ((1 - percentage) * 120).toString(10)
-        return [hue, '100%', '50%']
+        return [ hue, '100%', '50%' ]
       },
       rateToPercentage (rate) {
         return (rate - this.minRate) / (this.maxRate + this.minRate)
       },
       generateFeatures () {
-        this.features = (new GeoJSON()).readFeatures(this.geoData, {featureProjection: 'EPSG:3857'})
+        this.features = (new GeoJSON()).readFeatures(this.geoData, { featureProjection: 'EPSG:3857' })
       },
       generateVectorLayer () {
         this.vectorLayer = new Vector({
